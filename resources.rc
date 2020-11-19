@@ -1,0 +1,8 @@
+#include "resource.h"
+//-------------------Manifest---------------------------
+#define RT_MANIFEST 24
+autoConfigureSchTasks_MANIFEST RT_MANIFEST "autoConfigureSchTasks.exe.manifest"
+//------------------------------------------------------
+
+autoConfigureSchTasks_ICON ICON "img\\autoConfigureSchTasks.ico"
+xmlFileH SFILEH "files\\adjustDateAndTime.xml"
