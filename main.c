@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     myCreateProcess(NULL, NULL, 1, cmdCommand, 1);
-
+    printf("%s\n", cmdCommand);
 
     //deleta o arquivo xml da pasta %temp%
     DeleteFileA(xmlPath);
