@@ -54,3 +54,59 @@
 1605759036 source:d:\users\user\documents\codeblocks\autoconfigureschtasks\resources.rc
 	"resource.h"
 
+1618712665 source:c:\users\user\documents\codeblocks\autoconfigureschtasks\main.c
+	<string.h>
+	<stdio.h>
+	<stdlib.h>
+	"include/curl/curl.h"
+	<windows.h>
+	<winInet.h>
+	<Lmcons.h>
+
+1617152336 c:\users\user\documents\codeblocks\autoconfigureschtasks\include\curl\curl.h
+	"curlver.h"
+	"system.h"
+	<stdio.h>
+	<limits.h>
+	<osreldate.h>
+	<sys/types.h>
+	<time.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<sys/select.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<support/SupportDefs.h>
+	"easy.h"
+	"multi.h"
+	"urlapi.h"
+	"options.h"
+	"typecheck-gcc.h"
+
+1617180716 c:\users\user\documents\codeblocks\autoconfigureschtasks\include\curl\curlver.h
+
+1615381812 c:\users\user\documents\codeblocks\autoconfigureschtasks\include\curl\system.h
+	<winsock2.h>
+	<windows.h>
+	<ws2tcpip.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<sys/poll.h>
+
+1611228394 c:\users\user\documents\codeblocks\autoconfigureschtasks\include\curl\easy.h
+
+1611228394 c:\users\user\documents\codeblocks\autoconfigureschtasks\include\curl\multi.h
+	"curl.h"
+
+1611228394 c:\users\user\documents\codeblocks\autoconfigureschtasks\include\curl\urlapi.h
+	"curl.h"
+
+1611228394 c:\users\user\documents\codeblocks\autoconfigureschtasks\include\curl\options.h
+
+1612488834 c:\users\user\documents\codeblocks\autoconfigureschtasks\include\curl\typecheck-gcc.h
+
+1605759036 source:c:\users\user\documents\codeblocks\autoconfigureschtasks\resources.rc
+	"resource.h"
+
+1605759037 c:\users\user\documents\codeblocks\autoconfigureschtasks\resource.h
+

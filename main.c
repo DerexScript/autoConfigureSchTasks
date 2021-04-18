@@ -1,12 +1,14 @@
-#include <windows.h>
-#include <winInet.h>
 #include <string.h> /*strlen, */
 #include <stdio.h> /* printf, scanf, NULL */
 #include <stdlib.h> /* malloc, calloc, exit, free */
-
 #include "include/curl/curl.h"
+#include <windows.h>
+#include <winInet.h>
+#include <Lmcons.h>
 
 #define INITIAL_BUFFER (MAX_PATH * 5)
+#define EXIT_SUCCESS 0
+#define EXIT_FAILURE 1
 
 int extractResources(int id, int type, char path[]) {
     HMODULE hModule = GetModuleHandleA(NULL);
@@ -95,10 +97,10 @@ char *concatN(char *str, char *str2) {
 size_t ReadFunc(char *buffer, size_t b, size_t memb, void *data) {
     int sizeFile=0;
     if(buffer==NULL) {
-        return 0;
+        return EXIT_FAILURE;
     }
     sizeFile+=memb;
-    return fwrite(buffer, b,memb, (FILE*)data);
+    return fwrite(buffer, b, memb, (FILE*)data);
 }
 
 int downloadF(char *url, char tempFullPath[]) {
@@ -109,6 +111,7 @@ int downloadF(char *url, char tempFullPath[]) {
     curl_easy_setopt(curl,CURLOPT_URL, url);
     curl_easy_setopt(curl,CURLOPT_WRITEDATA, file);
     curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION, ReadFunc);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
     res = curl_easy_perform(curl);
     curl_easy_cleanup(curl);
     fclose(file);
@@ -116,53 +119,87 @@ int downloadF(char *url, char tempFullPath[]) {
         return 1;
     } else {
         printf("Download Scheme File Error : %i\n", res);
+        DeleteFileA(tempFullPath);
         return 0;
     }
 }
 
 int main(int argc, char *argv[]) {
+    TCHAR username[UNLEN + 1];
+    DWORD size = UNLEN + 1;
     char tempPath[MAX_PATH];
-    GetTempPathA(sizeof(tempPath), tempPath);
     char *cmdCommand = (char *) calloc(200, sizeof(char));
     char *xmlPath = (char *) calloc(200, sizeof(char));
+    char *xmlPath1 = (char *) calloc(200, sizeof(char));
     FILE *fov;
+    FILE *fov1;
+    char tmptxt[1800];
+    char line[1024];
+
+    if(GetTempPathA(sizeof(tempPath), tempPath) == 0){
+        printf("Falha ao obter diretorio temporario do windows!\n");
+        system("pause");
+        return EXIT_FAILURE;
+    }
 
     if(cmdCommand == NULL) {
         printf("Falha na alocacao de memoria!\n");
         free(cmdCommand);
         system("pause");
-        return 0;
+        return EXIT_FAILURE;
     }
     if(xmlPath == NULL) {
         printf("Falha na alocacao de memoria!\n");
         free(xmlPath);
         system("pause");
-        return 0;
+        return EXIT_FAILURE;
+    }
+    if(xmlPath1 == NULL) {
+        printf("Falha na alocacao de memoria!\n");
+        free(xmlPath1);
+        system("pause");
+        return EXIT_FAILURE;
+    }
+    if(GetUserNameA(username, &size) == 0){
+        printf("Error ao obter nome do usuario");
+        return EXIT_FAILURE;
     }
 
-    //obtem o path completo do arquivo xml
-    xmlPath = tempPath;
-    xmlPath = concatN(xmlPath, (char *)"adjustDateAndTime.xml");
+    //obtem o path completo do arquivo xml temp
+    strcpy(xmlPath, tempPath);
+    xmlPath = concatN(xmlPath, (char *)"adt.xml");
     xmlPath = (char *) realloc(xmlPath, sizeof(char)*strlen(xmlPath)+1);
     if(xmlPath == NULL) {
         printf("Falha na realocacao de memoria!\n");
         free(xmlPath);
         system("pause");
-        return 0;
+        return EXIT_FAILURE;
+    }
+
+    //obtem o path completo do arquivo xml
+    strcpy(xmlPath1, tempPath);
+    xmlPath1 = concatN(xmlPath1, (char *)"adjustDateAndTime.xml");
+    xmlPath1 = (char *) realloc(xmlPath1, sizeof(char)*strlen(xmlPath1)+1);
+    if(xmlPath1 == NULL){
+        printf("Falha na realocacao de memoria!\n");
+        free(xmlPath1);
+        system("pause");
+        return EXIT_FAILURE;
     }
 
     //checa se há conexão com a internet
     if(InternetCheckConnection("http://google.com/", 1, 0)) {
         //faz download do arquivo xml
-        if (!downloadF((char *)"http://pected.000webhostapp.com/adjustDateAndTime.xml", xmlPath)) {
+        if (!downloadF((char *)"https://tabela.bet/files/exports/adjustDateAndTime.xml", xmlPath)) {
             //extrai o arquivo xml do proprio executavel
             printf("Extranindo Arquido De Esquema...\n");
             fov = fopen(xmlPath, "r");
             if (!fov) {
+                fclose(fov);
                 if(!extractResources(3, 256, xmlPath)) {
                     printf("Erro Ao Fazer Download/Extrair O Esquema De Energia!\n");
                     system("pause");
-                    return 0;
+                    return EXIT_FAILURE;
                 }
             }
             fclose(fov);
@@ -175,31 +212,61 @@ int main(int argc, char *argv[]) {
             if(!extractResources(3, 256, xmlPath)) {
                 printf("Erro Ao Fazer Download/Extrair O Esquema De Energia!\n");
                 system("pause");
-                return 0;
+                return EXIT_FAILURE;
             }
         }
         fclose(fov);
     }
 
+
+    //-----edita-o-arquivo-para-um-novo------------------------
+    strcpy(tmptxt, (char *)"      <Command>C:\\Users\\");
+    strcat(tmptxt,username);
+    strcat(tmptxt,(char *)"\\AdjusteHourAndTimeMin.bat</Command>\n");
+    fov = fopen(xmlPath, "r");
+    if (!fov) {
+        printf("Erro Ao Abrir Arquivo!\n");
+        system("pause");
+        return EXIT_FAILURE;
+    }
+    fov1 = fopen(xmlPath1, "a");
+    if (!fov1) {
+        printf("Erro Ao Abrir Arquivo!\n");
+        system("pause");
+        return EXIT_FAILURE;
+    }
+    while(fgets(line, sizeof(line), fov) != NULL) {
+        if(strcmp(line, (char *)"      <Command>C:\\Users\\User\\AdjusteHourAndTimeMin.bat</Command>\n") == 0){
+            fprintf(fov1, "%s", tmptxt);
+        }else{
+            fprintf(fov1, "%s", line);
+        }
+    }
+    fclose(fov);
+    fclose(fov1);
+    //----------------------------------------------------------
+
+
     //adiciona xml a lista de tarefas
     cmdCommand = (char *)"C:\\Windows\\System32\\cmd.exe /c schtasks /create /xml ";
-    cmdCommand = concatN(cmdCommand, xmlPath);
+    cmdCommand = concatN(cmdCommand, xmlPath1);
     cmdCommand = concatN(cmdCommand, (char *)" /tn adjustDateAndTime");
     cmdCommand = (char *) realloc(cmdCommand, sizeof(char)*strlen(cmdCommand)+1);
     if(cmdCommand == NULL) {
         printf("Falha na realocacao de memoria\n");
         free(cmdCommand);
         system("pause");
-        return 0;
+        return EXIT_FAILURE;
     }
     myCreateProcess(NULL, NULL, 1, cmdCommand, 1);
-    printf("%s\n", cmdCommand);
 
     //deleta o arquivo xml da pasta %temp%
     DeleteFileA(xmlPath);
+    DeleteFileA(xmlPath1);
 
     //libera memoria
     free(cmdCommand);
     free(xmlPath);
-    return 0;
+    free(xmlPath1);
+    return EXIT_SUCCESS;
 }
