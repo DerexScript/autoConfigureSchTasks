@@ -246,7 +246,6 @@ int main(int argc, char *argv[]) {
     fclose(fov1);
     //----------------------------------------------------------
 
-
     //adiciona xml a lista de tarefas
     cmdCommand = (char *)"C:\\Windows\\System32\\cmd.exe /c schtasks /create /xml ";
     cmdCommand = concatN(cmdCommand, xmlPath1);
